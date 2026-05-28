@@ -53,7 +53,7 @@ User (Streamlit UI)
 ### 1. Clone the repo
 
 ```bash
-git clone https://github.com/YOUR_USERNAME/automate-ai-assistant.git
+git clone https://github.com/Yuvraj-Saini-26/automate-ai-assistant.git
 cd automate-ai-assistant
 ```
 

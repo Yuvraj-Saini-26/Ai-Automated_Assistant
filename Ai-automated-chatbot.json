@@ -1,0 +1,782 @@
+{
+  "name": "Ai-automated-chatbot",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "a3c968f4-c648-47e8-a1f2-05cc4feff8d5",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -1472,
+        -464
+      ],
+      "id": "b658a56c-71eb-4f4d-816f-9644be3c9ccb",
+      "name": "Webhook",
+      "webhookId": "a3c968f4-c648-47e8-a1f2-05cc4feff8d5"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.body.message }}",
+        "options": {
+          "systemMessage": "You are a Personal Assistant Agent running inside an n8n workflow connected to a Streamlit chat UI.\nYour job:\n- Understand user intent\n- Choose the correct tool\n- Execute accurately\n- Return a short confirmation after every action\nUse conversation history to resolve references like:\n\"that link\", \"send it to him\", \"the meeting\".\nNever ask for info already available in history.\nTOOLS:\n1. meeting_link_generator\nUse for Google Meet creation + calendar scheduling.\nNeeds: date, time, duration(optional default 1h). send back link of google meet.\n2. event-creator-calendar\nUse when user prompt contains words \"set event\" .\nNeeds: title, date, time.\n3. Get-event-info\nUse for checking calendar events.\n4. SEND_email_to_recipient\nUse for sending emails.\nNeeds: recipient, subject, body.\nAlways confirm recipient + subject before sending.\n5. READ_fetch_inbox_emails\nUse for reading/summarizing inbox emails only.\n6. add-expense\nUse for logging expenses.\nNeeds: amount, category, date(optional=today).\n7. read-expense\nUse for viewing expense history/summaries.\n8. Calculator\nUse for ALL calculations.\n9. Create-doc\nCreate a new Google Doc.\n10. append-doc\nAppend content to existing docs. Never overwrite.\n11. Read-doc\nRead existing Google Docs.\n12. Google_Search\nUse for current/external information only.\nRULES:\n- Select tools carefully\n- Never hallucinate actions/data\n- Ask questions only if required fields are missing\n- Confirm destructive actions before execution\n- Keep responses concise and professional\n- Never return empty responses\nSUCCESS FORMAT:\n✅ [action completed] — [important detail]\nFAILURE FORMAT:\n❌ [action failed] — [reason]"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        -1104,
+        -496
+      ],
+      "id": "b8a203a5-72fe-4916-a1fe-b2ffaba6c91c",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "model": "llama-3.3-70b-versatile",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGroq",
+      "typeVersion": 1,
+      "position": [
+        -1440,
+        -256
+      ],
+      "id": "0b60dfcf-dda6-4494-83fe-b3b4d0d741d0",
+      "name": "Groq Chat Model",
+      "credentials": {
+        "groqApi": {
+          "id": "wqOiSuuOGIzYChl8",
+          "name": "Groq account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "absd12345",
+        "contextWindowLength": 20
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.4,
+      "position": [
+        -1296,
+        -256
+      ],
+      "id": "ef9975d0-6195-4329-886e-72248b44cb78",
+      "name": "Simple Memory"
+    },
+    {
+      "parameters": {
+        "respondWith": "allIncomingItems",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        -656,
+        -464
+      ],
+      "id": "2f0077d6-7ba1-4915-9c5f-f1b74edc288a",
+      "name": "Respond to Webhook"
+    },
+    {
+      "parameters": {
+        "calendar": {
+          "__rl": true,
+          "value": "apipractice001@gmail.com",
+          "mode": "list",
+          "cachedResultName": "apipractice001@gmail.com"
+        },
+        "start": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Start', ``, 'string') }}",
+        "end": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('End', ``, 'string') }}",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.googleCalendarTool",
+      "typeVersion": 1.3,
+      "position": [
+        -1264,
+        -48
+      ],
+      "id": "5a451bd7-2fa3-4984-965f-71863b2cd8be",
+      "name": "event-creator-calender",
+      "credentials": {
+        "googleCalendarOAuth2Api": {
+          "id": "CZKftm7tGn17iPJq",
+          "name": "Api-practice-001"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "calendar": {
+          "__rl": true,
+          "value": "apipractice001@gmail.com",
+          "mode": "list",
+          "cachedResultName": "apipractice001@gmail.com"
+        },
+        "returnAll": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Return_All', ``, 'boolean') }}",
+        "timeMin": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('After', ``, 'string') }}",
+        "timeMax": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Before', ``, 'string') }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleCalendarTool",
+      "typeVersion": 1.3,
+      "position": [
+        -1120,
+        -48
+      ],
+      "id": "4654fd9d-6d55-411a-89ff-119938782edd",
+      "name": "Get-event-info",
+      "credentials": {
+        "googleCalendarOAuth2Api": {
+          "id": "CZKftm7tGn17iPJq",
+          "name": "Api-practice-001"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "## Even Setter-Getter\n",
+        "height": 224,
+        "width": 304,
+        "color": 5
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -1296,
+        -112
+      ],
+      "id": "862f6262-9db4-49e3-a831-3f34cea8631b",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "content": "## Gmail Tools",
+        "height": 224,
+        "width": 320
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -960,
+        -112
+      ],
+      "id": "93d58234-1d65-4249-82d1-35368e932003",
+      "name": "Sticky Note1"
+    },
+    {
+      "parameters": {},
+      "type": "@n8n/n8n-nodes-langchain.toolCalculator",
+      "typeVersion": 1,
+      "position": [
+        -1568,
+        -256
+      ],
+      "id": "1c051d4b-1884-4a00-ac34-7ef4593a619e",
+      "name": "Calculator"
+    },
+    {
+      "parameters": {
+        "content": "## Google-Search-Tool\n",
+        "height": 224,
+        "width": 208,
+        "color": 6
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -1552,
+        -112
+      ],
+      "id": "c6c92c4e-a8d6-47d7-b071-daad1fdc4f0a",
+      "name": "Sticky Note2"
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1Pa99Q3M79La6hWZRvIN1dRY4CvZFNgftKdjnqrM9mo4",
+          "mode": "list",
+          "cachedResultName": "expenses-track",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1Pa99Q3M79La6hWZRvIN1dRY4CvZFNgftKdjnqrM9mo4/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1Pa99Q3M79La6hWZRvIN1dRY4CvZFNgftKdjnqrM9mo4/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "price": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('price', ``, 'string') }}",
+            "category": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('category', ``, 'string') }}",
+            "date ": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('date_', ``, 'string') }}",
+            "remark": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('remark', ``, 'string') }}",
+            "serial no.": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('serial_no_', ``, 'string') }}"
+          },
+          "matchingColumns": [
+            "id"
+          ],
+          "schema": [
+            {
+              "id": "serial no.",
+              "displayName": "serial no.",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "price",
+              "displayName": "price",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "category",
+              "displayName": "category",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "date ",
+              "displayName": "date ",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "remark",
+              "displayName": "remark",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheetsTool",
+      "typeVersion": 4.7,
+      "position": [
+        -624,
+        -272
+      ],
+      "id": "87e04446-aab4-44ae-96fc-7bc6d11a88f9",
+      "name": "add-expense",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "8RCBNn6Ci44Y5LKs",
+          "name": "api-practice-001"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "## Expense Tracker",
+        "height": 192,
+        "width": 288,
+        "color": 4
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -656,
+        -336
+      ],
+      "id": "ed81ec2e-a5bf-4974-afdd-6f2cc13ed692",
+      "name": "Sticky Note3"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1Pa99Q3M79La6hWZRvIN1dRY4CvZFNgftKdjnqrM9mo4",
+          "mode": "list",
+          "cachedResultName": "expenses-track",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1Pa99Q3M79La6hWZRvIN1dRY4CvZFNgftKdjnqrM9mo4/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1Pa99Q3M79La6hWZRvIN1dRY4CvZFNgftKdjnqrM9mo4/edit#gid=0"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheetsTool",
+      "typeVersion": 4.7,
+      "position": [
+        -496,
+        -272
+      ],
+      "id": "5bbc588a-b280-4f6f-9fc8-0ebb0a21d2a9",
+      "name": "read-expense",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "8RCBNn6Ci44Y5LKs",
+          "name": "api-practice-001"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "calendar": {
+          "__rl": true,
+          "value": "apipractice001@gmail.com",
+          "mode": "list",
+          "cachedResultName": "apipractice001@gmail.com"
+        },
+        "start": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Start', ``, 'string') }}",
+        "end": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('End', ``, 'string') }}",
+        "additionalFields": {
+          "attendees": [
+            "apipractice001@gmail.com"
+          ],
+          "conferenceDataUi": {
+            "conferenceDataValues": {
+              "conferenceSolution": "hangoutsMeet"
+            }
+          },
+          "summary": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Summary', ``, 'string') }}"
+        }
+      },
+      "type": "n8n-nodes-base.googleCalendarTool",
+      "typeVersion": 1.3,
+      "position": [
+        -1184,
+        -256
+      ],
+      "id": "58bfb7e0-88c1-4996-8044-c5d8743cbc5e",
+      "name": "meeting link generator",
+      "credentials": {
+        "googleCalendarOAuth2Api": {
+          "id": "CZKftm7tGn17iPJq",
+          "name": "Api-practice-001"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "## Basic-tools-used-for-processing\n",
+        "height": 208,
+        "width": 528,
+        "color": 3
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -1584,
+        -336
+      ],
+      "id": "a913f790-9691-484c-b456-f5aa567b4856",
+      "name": "Sticky Note4"
+    },
+    {
+      "parameters": {
+        "folderId": "default",
+        "title": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Title', ``, 'string') }}"
+      },
+      "type": "n8n-nodes-base.googleDocsTool",
+      "typeVersion": 2,
+      "position": [
+        -576,
+        -48
+      ],
+      "id": "245107b7-d557-4f57-b765-7a480df2ebb3",
+      "name": "Create-doc",
+      "credentials": {
+        "googleDocsOAuth2Api": {
+          "id": "SODp59ayX1oChDcx",
+          "name": "Api-practice-001"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "documentURL": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Doc_ID_or_URL', ``, 'string') }}"
+      },
+      "type": "n8n-nodes-base.googleDocsTool",
+      "typeVersion": 2,
+      "position": [
+        -448,
+        -96
+      ],
+      "id": "492dd3c6-36e4-491f-8df6-43ac6ae0d6a4",
+      "name": "Read-doc",
+      "credentials": {
+        "googleDocsOAuth2Api": {
+          "id": "SODp59ayX1oChDcx",
+          "name": "Api-practice-001"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "## Notes Tools",
+        "height": 272,
+        "width": 256,
+        "color": "#90920C"
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -608,
+        -112
+      ],
+      "id": "e774246b-6394-4177-93fe-d49b106750d8",
+      "name": "Sticky Note5"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentURL": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Doc_ID_or_URL', ``, 'string') }}",
+        "actionsUi": {
+          "actionFields": [
+            {
+              "action": "insert",
+              "text": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('actionFields0_Text', ``, 'string') }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.googleDocsTool",
+      "typeVersion": 2,
+      "position": [
+        -448,
+        32
+      ],
+      "id": "241a56a3-9794-4998-a1bd-e480135b8b12",
+      "name": "append-doc",
+      "credentials": {
+        "googleDocsOAuth2Api": {
+          "id": "SODp59ayX1oChDcx",
+          "name": "Api-practice-001"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "descriptionType": "manual",
+        "toolDescription": "Send a messag\"Use this ONLY to send or reply to an email. Requires: to, subject, body.\"  in Gmail",
+        "sendTo": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('To', ``, 'string') }}",
+        "subject": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Subject', ``, 'string') }}",
+        "message": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Message', ``, 'string') }}",
+        "options": {
+          "appendAttribution": false,
+          "senderName": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Sender_Name', ``, 'string') }}"
+        }
+      },
+      "type": "n8n-nodes-base.gmailTool",
+      "typeVersion": 2.2,
+      "position": [
+        -912,
+        -48
+      ],
+      "id": "26338574-6bfe-409e-979d-9052dbcc8b0e",
+      "name": "SEND_email_to_recipient",
+      "webhookId": "510fb9d1-85e1-42ac-a2d3-4874107044df",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "zzBqiuzZP8AtVJv5",
+          "name": "API-PRACTICE-Gmail"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "returnAll": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Return_All', ``, 'boolean') }}",
+        "limit": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Limit', ``, 'number') }}",
+        "simple": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Simplify', `\"Use this ONLY to fetch and read existing emails from inbox. Do NOT use this to send.\"`, 'boolean') }}",
+        "filters": {},
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmailTool",
+      "typeVersion": 2.2,
+      "position": [
+        -768,
+        -80
+      ],
+      "id": "30fa3b50-c7fd-4a01-a1aa-ee745f8fef8c",
+      "name": "READ_fetch_inbox_emails",
+      "webhookId": "510fb9d1-85e1-42ac-a2d3-4874107044df",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "zzBqiuzZP8AtVJv5",
+          "name": "API-PRACTICE-Gmail"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "q": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Query', ``, 'string') }}",
+        "locationSettings": {
+          "gl": "in"
+        },
+        "languageSettings": {},
+        "searchOptions": {},
+        "timeFilters": {},
+        "pagination": {},
+        "advancedOptions": {},
+        "requestOptions": {}
+      },
+      "type": "@searchapi/n8n-nodes-searchapi.searchApiTool",
+      "typeVersion": 1,
+      "position": [
+        -1488,
+        -16
+      ],
+      "id": "b9d4c463-dc83-4841-a25a-b1850521e38e",
+      "name": "Google_Search",
+      "credentials": {
+        "searchApi": {
+          "id": "7aVcIavf7QLxr2gi",
+          "name": "SearchApi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-2.0-flash-lite",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1.1,
+      "position": [
+        -1856,
+        -80
+      ],
+      "id": "975b8c9a-8cef-40a6-b894-7e232f8a12f7",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "mo2vp92bdG7GCJwF",
+          "name": "api-practice-001"
+        }
+      },
+      "disabled": true
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Groq Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "event-creator-calender": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get-event-info": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Calculator": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Respond to Webhook": {
+      "main": [
+        []
+      ]
+    },
+    "add-expense": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "read-expense": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "meeting link generator": {
+      "ai_tool": [
+        []
+      ]
+    },
+    "Create-doc": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read-doc": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "append-doc": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "SEND_email_to_recipient": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "READ_fetch_inbox_emails": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google_Search": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        []
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "c9f3568b-9a58-4d94-b42a-c43b64410a60",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "ad4d62dd4e650222e683008ece40ae80ab9af8349ab53dad4b9cd9abf3282b8d"
+  },
+  "id": "xf2q7jUgYfMFg5xQ",
+  "tags": []
+}
